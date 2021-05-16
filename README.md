@@ -1,3 +1,10 @@
+To run:
+
+- copy all the files to the FeatherS2
+- create the usual secrets.py
+- install the requirements with circup or manually
+- rename `wsgi_simpletest.py` to `code.py`
+
 Test with:
 
 ```bash
