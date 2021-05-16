@@ -1,3 +1,7 @@
+This is a quick and dirty port of `adafruit_esp32spi/adafruit_esp32spi_wsgiserver.py` to ESP32-S2.
+
+Tested on a FeatherS2. Will work more on it later unless somebody else wants to use it to start a legitimate library, cookie cutter and all that.
+
 To run:
 
 - copy all the files to the FeatherS2
