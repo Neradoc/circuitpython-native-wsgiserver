@@ -41,18 +41,20 @@ def readline(socketin):
     Implement readline() for native wifi using recv_into
     """
     data_string = b""
-    try:
-        while True:
+    while True:
+        try:
             num = socketin.recv_into(buffer, 1)
             data_string += str(buffer, 'utf8')[:num]
             if num == 0:
                 return data_string
             if data_string[-2:] == b"\r\n":
                 return data_string[:-2]
-    except OSError as ex:
-        # if ex.errno == 9: # [Errno 9] EBADF
-        #     return None
-        raise
+        except OSError as ex:
+            # if ex.errno == 9: # [Errno 9] EBADF
+            #     return None
+            if ex.errno == 11:  # [Errno 11] EAGAIN
+                continue
+            raise
 
 
 def read(socketin,length = -1):
@@ -173,10 +175,15 @@ class WSGIServer:
             response += "\r\n"
             self._client_sock.send(response.encode("utf-8"))
             for data in result:
-                if isinstance(data, bytes):
-                    self._client_sock.send(data)
-                else:
-                    self._client_sock.send(data.encode("utf-8"))
+                if not isinstance(data, bytes):
+                    data = data.encode("utf-8")
+                bytes_sent = self._client_sock.send(data)
+                while bytes_sent < len(data):
+                    try:
+                        bytes_sent += self._client_sock.send(data[bytes_sent:])
+                    except OSError as ex:
+                        if ex.errno != 11:  # [Errno 11] EAGAIN
+                            raise
             gc.collect()
         finally:
             print("closing")
