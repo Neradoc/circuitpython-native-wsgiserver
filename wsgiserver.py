@@ -64,14 +64,14 @@ def read(socketin,length = -1):
         if length > 0:
             while total < length:
                 reste = length - total
-                num = self._socket.recv_into(self.buffer, min(_BUFFER_SIZE, reste))
+                num = socketin.recv_into(buffer, min(_BUFFER_SIZE, reste))
                 #
                 if num == 0:
                     # timeout
                     # raise OSError(110)
                     return data_string
                 #
-                data_string += self.buffer[:num]
+                data_string += buffer[:num]
                 total = total + num
             return data_string
         else:
@@ -251,7 +251,7 @@ class WSGIServer:
             env["CONTENT_TYPE"] = headers.get("content-type")
         if "content-length" in headers:
             env["CONTENT_LENGTH"] = headers.get("content-length")
-            body = read(int(env["CONTENT_LENGTH"]))
+            body = read(client, int(env["CONTENT_LENGTH"]))
             env["wsgi.input"] = io.StringIO(body)
         else:
             body = read(client)
