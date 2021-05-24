@@ -175,9 +175,11 @@ class WSGIServer:
             response += "\r\n"
             self._client_sock.send(response.encode("utf-8"))
             for data in result:
-                if not isinstance(data, bytes):
+                if isinstance(data, str):
                     data = data.encode("utf-8")
-                bytes_sent = self._client_sock.send(data)
+                elif not isinstance(data, bytes):
+                    data = str(data).encode("utf-8")
+                bytes_sent = 0
                 while bytes_sent < len(data):
                     try:
                         bytes_sent += self._client_sock.send(data[bytes_sent:])
@@ -185,8 +187,11 @@ class WSGIServer:
                         if ex.errno != 11:  # [Errno 11] EAGAIN
                             raise
             gc.collect()
+        except OSError as ex:
+            if ex.errno != 104:  # [Errno 104] ECONNRESET
+                raise
         finally:
-            print("closing")
+            #print("closing")
             self._client_sock.close()
             self._client_sock = None
 
@@ -201,7 +206,12 @@ class WSGIServer:
         if not self._server_sock:
             print("Server has not been started, cannot check for clients!")
         elif not self._client_sock:
-            self._client_sock, addr = self._server_sock.accept()
+            self._server_sock.setblocking(False)
+            try:
+                self._client_sock, addr = self._server_sock.accept()
+            except OSError as ex:
+                if ex.errno != 11:  # [Errno 11] EAGAIN
+                    raise
 
         return None
 
