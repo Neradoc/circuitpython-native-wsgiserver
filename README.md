@@ -4,7 +4,7 @@ Tested on a FeatherS2. Will work more on it later unless somebody else wants to 
 
 To run:
 
-- copy all the files to the FeatherS2
+- copy `wsgiserver.py` and all the files in `examples/wsgi_simpletest` to the FeatherS2
 - create the usual secrets.py
 - install the requirements of the demo with circup or manually
   - `adafruit_wsgi` for the web server application helper
