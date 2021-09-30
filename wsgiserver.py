@@ -34,6 +34,10 @@ from micropython import const
 import socketpool
 import wifi
 
+class BadRequestError(Exception):
+    """Raised when the client sends an unexpected empty line"""
+    pass
+
 _BUFFER_SIZE = 32
 buffer = bytearray(_BUFFER_SIZE)
 def readline(socketin):
@@ -156,9 +160,13 @@ class WSGIServer:
         """
         self.client_available()
         if self._client_sock:
-            environ = self._get_environ(self._client_sock)
-            result = self.application(environ, self._start_response)
-            self.finish_response(result)
+            try:
+                environ = self._get_environ(self._client_sock)
+                result = self.application(environ, self._start_response)
+                self.finish_response(result)
+            except BadRequestError:
+                self._start_response("400 Bad Request", [])
+                self.finish_response([])
 
     def finish_response(self, result):
         """
@@ -237,7 +245,10 @@ class WSGIServer:
         """
         env = {}
         line = readline(client).decode("utf-8")
-        (method, path, ver) = line.rstrip("\r\n").split(None, 2)
+        try:
+            (method, path, ver) = line.rstrip("\r\n").split(None, 2)
+        except ValueError:
+            raise BadRequestError("Unknown request from client.")
 
         env["wsgi.version"] = (1, 0)
         env["wsgi.url_scheme"] = "http"
