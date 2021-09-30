@@ -31,12 +31,12 @@ https://www.python.org/dev/peps/pep-0333/
 import io
 import gc
 from micropython import const
-import wifi, socketpool
+import socketpool
+import wifi
 
 _BUFFER_SIZE = 32
 buffer = bytearray(_BUFFER_SIZE)
 def readline(socketin):
-    global buffer
     """
     Implement readline() for native wifi using recv_into
     """
