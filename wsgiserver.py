@@ -156,8 +156,11 @@ class WSGIServer:
         """
         self.client_available()
         if self._client_sock:
-            environ = self._get_environ(self._client_sock)
-            result = self.application(environ, self._start_response)
+            try:
+                environ = self._get_environ(self._client_sock)
+                result = self.application(environ, self._start_response)
+            except Exception:
+                result = None
             self.finish_response(result)
 
     def finish_response(self, result):
