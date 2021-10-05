@@ -4,12 +4,13 @@
 import board
 import busio
 from digitalio import DigitalInOut
-import status_led
-
-import wifi
 import socketpool
+import time
+import wifi
+
 import wsgiserver as server
 from adafruit_wsgi.wsgi_app import WSGIApp
+import status_led
 
 # Get wifi details and more from a secrets.py file
 try:
@@ -61,6 +62,6 @@ print(f"open this IP in your browser: http://{HOST}:{PORT}/")
 wsgiServer.start()
 while True:
     # Our main loop where we have the server poll for incoming requests
-    print("POLL")
     wsgiServer.update_poll()
     # Could do any other background tasks here, like reading sensors
+    time.sleep(0.01)
