@@ -28,10 +28,10 @@ except ImportError:
 print("ESP32-S2 simple web server test!")
 
 print("Connect wifi")
-wifi.radio.connect(secrets['ssid'],secrets['password'])
+wifi.radio.connect(secrets["ssid"], secrets["password"])
 HOST = repr(wifi.radio.ipv4_address)
-PORT = 80        # Port to listen on
-print(HOST,PORT)
+PORT = 80  # Port to listen on
+print(HOST, PORT)
 
 # Use below for Most Boards
 status_light = neopixel.NeoPixel(

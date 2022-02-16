@@ -3,14 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 import board
-import busio
-from digitalio import DigitalInOut
-import socketpool
 import time
 import wifi
-
-import wsgiserver as server
 from adafruit_wsgi.wsgi_app import WSGIApp
+import wsgiserver as server
 
 ############################################################################
 ############################################################################
@@ -23,8 +19,12 @@ oled = board.DISPLAY
 splash = displayio.Group()
 
 main_label = Label(
-    text="Connecting...", font=terminalio.FONT, color=0xFFFFFF, scale=2,
-    anchored_position=(oled.width // 2, oled.height // 2), anchor_point=(0.5, 0.5),
+    text="Connecting...",
+    font=terminalio.FONT,
+    color=0xFFFFFF,
+    scale=2,
+    anchored_position=(oled.width // 2, oled.height // 2),
+    anchor_point=(0.5, 0.5),
 )
 splash.append(main_label)
 oled.show(splash)
@@ -58,8 +58,9 @@ print(HOST, PORT)
 
 web_app = WSGIApp()
 
+
 @web_app.route("/")
-def led_off(request):  # pylint: disable=unused-argument
+def homepage(request):  # pylint: disable=unused-argument
     text = """
     <h3>Text color</h3>
     <p><a href="/led_off">White</a></p>
@@ -86,12 +87,13 @@ def led_on(request, r, g, b):  # pylint: disable=unused-argument
 @web_app.route("/led_off")
 def led_off(request):  # pylint: disable=unused-argument
     print("led off!")
-    main_label.color = (255,255,255)
-    text = f"""
+    main_label.color = (255, 255, 255)
+    text = """
     <p>Color is white.</p>
     <p><a href="/">Go back</a></p>
     """
     return ("200 OK", [], text)
+
 
 ############################################################################
 ############################################################################

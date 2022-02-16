@@ -38,6 +38,8 @@ persistent=yes
 # active Python interpreter and may run arbitrary code.
 unsafe-load-any-extension=no
 
+disable=wrong-import-order,consider-using-f-string,raise-missing-from
+
 
 [MESSAGES CONTROL]
 
