@@ -1,4 +1,5 @@
 # SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
 # SPDX-License-Identifier: MIT
 
 import board
@@ -32,7 +33,9 @@ print(HOST,PORT)
 
 
 """Use below for Most Boards"""
-status_light = status_led.get_status_led(brightness=1)
+import neopixel
+status_light = neopixel.NeoPixel(board.NEOPIXEL, 1)
+
 
 # Here we create our application, registering the
 # following functions to be called on specific HTTP GET requests routes
