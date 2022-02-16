@@ -2,9 +2,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
 #
 # SPDX-License-Identifier: MIT
-#
-# make pylint better
-# pylint:disable=consider-using-f-string,raise-missing-from
 
 """
 `wsgiserver`
