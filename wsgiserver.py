@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019 Matt Costi for Adafruit Industries
+# SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
 #
 # SPDX-License-Identifier: MIT
 
 """
-`adafruit_esp32spi_wsgiserver`
+`wsgiserver`
 ================================================================================
 
 A simple WSGI (Web Server Gateway Interface) server that interfaces with the ESP32 over SPI.
@@ -24,7 +25,7 @@ Requires update_poll being called in the applications main event loop.
 For more details about Python WSGI see:
 https://www.python.org/dev/peps/pep-0333/
 
-* Author(s): Matt Costi
+* Author(s): Matt Costi, Neradoc
 """
 # pylint: disable=no-name-in-module
 
@@ -34,12 +35,21 @@ from micropython import const
 import socketpool
 import wifi
 
+
+__version__ = "0.0.0-auto.0"
+__repo__ = "https://github.com/Neradoc/CircuitPython_wsgiserver.git"
+
+
 class BadRequestError(Exception):
     """Raised when the client sends an unexpected empty line"""
+
     pass
+
 
 _BUFFER_SIZE = 32
 buffer = bytearray(_BUFFER_SIZE)
+
+
 def readline(socketin):
     """
     Implement readline() for native wifi using recv_into
@@ -48,7 +58,7 @@ def readline(socketin):
     while True:
         try:
             num = socketin.recv_into(buffer, 1)
-            data_string += str(buffer, 'utf8')[:num]
+            data_string += str(buffer, "utf8")[:num]
             if num == 0:
                 return data_string
             if data_string[-2:] == b"\r\n":
@@ -61,7 +71,7 @@ def readline(socketin):
             raise
 
 
-def read(socketin,length = -1):
+def read(socketin, length=-1):
     total = 0
     data_string = b""
     try:
@@ -81,13 +91,14 @@ def read(socketin,length = -1):
         else:
             while True:
                 num = socketin.recv_into(buffer, 1)
-                data_string += str(buffer, 'utf8')[:num]
+                data_string += str(buffer, "utf8")[:num]
                 if num == 0:
                     return data_string
     except OSError as ex:
-        if ex.errno == 11: # [Errno 11] EAGAIN
+        if ex.errno == 11:  # [Errno 11] EAGAIN
             return data_string
         raise
+
 
 def parse_headers(sock):
     """
@@ -102,11 +113,11 @@ def parse_headers(sock):
         if not line or line == b"\r\n":
             break
 
-        #print("**line: ", line)
-        title, content = line.split(b': ', 1)
+        # print("**line: ", line)
+        title, content = line.split(b": ", 1)
         if title and content:
-            title = str(title.lower(), 'utf-8')
-            content = str(content, 'utf-8')
+            title = str(title.lower(), "utf-8")
+            content = str(content, "utf-8")
             headers[title] = content
     return headers
 
@@ -137,17 +148,18 @@ class WSGIServer:
         Call update_poll in the main loop for the application callable to be
         invoked on receiving an incoming request.
         """
-        self._server_sock = pool.socket(pool.AF_INET,pool.SOCK_STREAM)
+        self._server_sock = pool.socket(pool.AF_INET, pool.SOCK_STREAM)
         HOST = repr(wifi.radio.ipv4_address)
         self._server_sock.bind((repr(wifi.radio.ipv4_address), self.port))
         self._server_sock.listen(1)
-#         if self._debug:
-#             ip = _the_interface.pretty_ip(_the_interface.ip_address)
-#             print("Server available at {0}:{1}".format(ip, self.port))
-#             print(
-#                 "Sever status: ",
-#                 _the_interface.get_server_state(self._server_sock.socknum),
-#             )
+
+        # if self._debug:
+        #     ip = _the_interface.pretty_ip(_the_interface.ip_address)
+        #     print("Server available at {0}:{1}".format(ip, self.port))
+        #     print(
+        #         "Sever status: ",
+        #         _the_interface.get_server_state(self._server_sock.socknum),
+        #     )
 
     def pretty_ip(self):
         return f"http://{wifi.radio.ipv4_address}:{self.port}"
@@ -199,7 +211,7 @@ class WSGIServer:
             if ex.errno != 104:  # [Errno 104] ECONNRESET
                 raise
         finally:
-            #print("closing")
+            # print("closing")
             self._client_sock.close()
             self._client_sock = None
 
