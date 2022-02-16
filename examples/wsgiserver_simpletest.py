@@ -11,7 +11,6 @@ import wifi
 
 import wsgiserver as server
 from adafruit_wsgi.wsgi_app import WSGIApp
-import status_led
 
 # Get wifi details and more from a secrets.py file
 try:
