@@ -5,12 +5,8 @@
 
 import os
 import board
-import busio
-from digitalio import DigitalInOut
 import neopixel
-
 import wifi
-import socketpool
 import wsgiserver as server
 
 # This example depends on the 'static' folder in the examples folder
