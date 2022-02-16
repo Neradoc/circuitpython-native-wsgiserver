@@ -2,6 +2,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
 #
 # SPDX-License-Identifier: MIT
+#
+# make pylint better
+# pylint:disable=consider-using-f-string,raise-missing-from
 
 """
 `wsgiserver`
@@ -43,16 +46,16 @@ __repo__ = "https://github.com/Neradoc/CircuitPython_wsgiserver.git"
 class BadRequestError(Exception):
     """Raised when the client sends an unexpected empty line"""
 
-    pass
-
 
 _BUFFER_SIZE = 32
 buffer = bytearray(_BUFFER_SIZE)
 
 
-def readline(socketin):
+def _readline(socketin):
     """
-    Implement readline() for native wifi using recv_into
+    Implement readline() for native wifi using recv_into.
+
+    :param Socket socketin: the socket.
     """
     data_string = b""
     while True:
@@ -71,11 +74,17 @@ def readline(socketin):
             raise
 
 
-def read(socketin, length=-1):
+def _read(socketin, length=-1):
+    """
+    Implement read() for native wifi using recv_into.
+
+    :param Socket socketin: the socket.
+    :param int length: how many bytes to read.
+    """
     total = 0
     data_string = b""
     try:
-        if length > 0:
+        if length > 0:  # pylint:disable=no-else-return
             while total < length:
                 reste = length - total
                 num = socketin.recv_into(buffer, min(_BUFFER_SIZE, reste))
@@ -109,7 +118,7 @@ def parse_headers(sock):
     """
     headers = {}
     while True:
-        line = readline(sock)
+        line = _readline(sock)
         if not line or line == b"\r\n":
             break
 
@@ -149,7 +158,6 @@ class WSGIServer:
         invoked on receiving an incoming request.
         """
         self._server_sock = pool.socket(pool.AF_INET, pool.SOCK_STREAM)
-        HOST = repr(wifi.radio.ipv4_address)
         self._server_sock.bind((repr(wifi.radio.ipv4_address), self.port))
         self._server_sock.listen(1)
 
@@ -162,6 +170,9 @@ class WSGIServer:
         #     )
 
     def pretty_ip(self):
+        """
+        Return a "pretty" representation of the current local IP.
+        """
         return f"http://{wifi.radio.ipv4_address}:{self.port}"
 
     def update_poll(self):
@@ -222,18 +233,15 @@ class WSGIServer:
         :return: the client
         :rtype: Socket
         """
-        sock = None
         if not self._server_sock:
             print("Server has not been started, cannot check for clients!")
         elif not self._client_sock:
             self._server_sock.setblocking(False)
             try:
-                self._client_sock, addr = self._server_sock.accept()
+                self._client_sock, _ = self._server_sock.accept()
             except OSError as ex:
                 if ex.errno != 11:  # [Errno 11] EAGAIN
                     raise
-
-        return None
 
     def _start_response(self, status, response_headers):
         """
@@ -256,7 +264,7 @@ class WSGIServer:
         :param Socket client: socket to read the request from
         """
         env = {}
-        line = readline(client).decode("utf-8")
+        line = _readline(client).decode("utf-8")
         try:
             (method, path, ver) = line.rstrip("\r\n").split(None, 2)
         except ValueError:
@@ -284,10 +292,10 @@ class WSGIServer:
             env["CONTENT_TYPE"] = headers.get("content-type")
         if "content-length" in headers:
             env["CONTENT_LENGTH"] = headers.get("content-length")
-            body = read(client, int(env["CONTENT_LENGTH"]))
+            body = _read(client, int(env["CONTENT_LENGTH"]))
             env["wsgi.input"] = io.StringIO(body)
         else:
-            body = read(client)
+            body = _read(client)
             env["wsgi.input"] = io.StringIO(body)
         for name, value in headers.items():
             key = "HTTP_" + name.replace("-", "_").upper()
