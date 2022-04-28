@@ -48,11 +48,6 @@ Or the following command to update an existing version:
 
     circup update
 
-Usage Example
-=============
-
-.. todo:: Add a quick, simple example. It and other examples should live in the
-examples folder and be included in docs/examples.rst.
 
 Contributing
 ============
